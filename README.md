@@ -16,9 +16,9 @@ Antes de abrir este proyecto, instala en tu máquina:
 .
 ├── .devcontainer/
 │   ├── devcontainer.json     # Configuración de VS Code para el Dev Container
-│   └── docker-compose.yml    # Definición de los contenedores (app + oracle)
-├── .env.example               # Plantilla de variables de entorno (sí se sube a Git)
-├── .env                        # Tus contraseñas reales (NO se sube a Git)
+│   ├── docker-compose.yml    # Definición de los contenedores (app + oracle)
+│   ├── .env.example           # Plantilla de variables de entorno (sí se sube a Git)
+│   └── .env                    # Tus contraseñas reales (NO se sube a Git)
 └── .gitignore
 ```
 
@@ -34,10 +34,10 @@ cd <carpeta-del-proyecto>
 ### 2. Crear tu archivo de variables de entorno
 
 ```bash
-cp .env.example .env
+cp .devcontainer/.env.example .devcontainer/.env
 ```
 
-Abre `.env` y define tus propias contraseñas:
+Abre `.devcontainer/.env` y define tus propias contraseñas:
 
 ```
 ORACLE_PASSWORD=TuPasswordSegura123
@@ -46,6 +46,8 @@ APP_USER_PASSWORD=OtraPassword456
 ```
 
 > Este archivo es local a tu máquina y está en `.gitignore` — nunca se comparte ni se sube al repositorio.
+>
+> **Importante:** el `.env` debe estar dentro de `.devcontainer/`, junto al `docker-compose.yml`. Docker Compose busca el archivo `.env` en el mismo directorio que el `docker-compose.yml` que está usando; si lo pones en la raíz del proyecto, las variables quedan vacías y el contenedor de Oracle falla al arrancar.
 
 ### 3. Abrir el proyecto en VS Code
 
@@ -78,7 +80,7 @@ Usa estos datos en la extensión de Oracle, DBeaver, SQL Developer, etc.:
 | Puerto            | `1521`                                                          |
 | Service name      | `FREEPDB1`                                                      |
 | Usuario           | `estudiante` (o `system` para tareas administrativas)           |
-| Contraseña        | La que definiste en tu `.env`                                   |
+| Contraseña        | La que definiste en tu `.devcontainer/.env`                     |
 | Role / Connect as | `Default` (deja `SYSDBA` únicamente para conectarte como `sys`) |
 
 ## Comandos útiles
@@ -128,6 +130,15 @@ Conéctate como `system` y ejecuta:
 ```sql
 GRANT DBA TO estudiante;
 ```
+
+**El contenedor `oracle` sale con "Error" apenas arranca / el log dice "Oracle Database SYS and SYSTEM passwords have to be specified":**
+El archivo `.env` no está en `.devcontainer/.env` (revisa el paso 2), o el contenedor ya se había creado antes con las variables vacías y no se recreó. Corrígelo así:
+
+```bash
+docker compose -f .devcontainer/docker-compose.yml down -v
+```
+
+y vuelve a reabrir el Dev Container para que se cree desde cero con las variables correctas.
 
 ## Limpieza total (desinstalar todo)
 

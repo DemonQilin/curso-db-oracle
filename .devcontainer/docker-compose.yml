@@ -1,6 +1,6 @@
 version: "3.8"
 
-name: curso-bd-oracle
+name: lab1-bd-oracle
 
 services:
   app:
